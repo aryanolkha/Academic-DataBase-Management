@@ -18,28 +18,33 @@ document.addEventListener('DOMContentLoaded', function () {
     function hideLoginContainer() {
         loginContainer.style.display = 'none';
     }
-     // Function to show login container
-     function showLoginContainer() {
+    // Function to show login container
+    function showLoginContainer() {
         loginContainer.style.display = 'block';
     }
-    function hideuserDetailsContainer(){
-        userDetailsContainer.style.display='none';
-    }
-    function showuserDetailsContainer(){
-        userDetailsContainer.style.display='none';
-    }
-
-
-
-    function hideHomeBottons(){
-        HomeBottons.style.display='none';
-    }
     
-    function showHomeBottons(){
-        HomeBottons.style.display='block';
+    function hideuserDetailsContainer() {
+        userDetailsContainer.style.display = 'none';
+    }
+    function showuserDetailsContainer() {
+        userDetailsContainer.style.display = 'none';
     }
 
-   
+
+
+    function hideHomeBottons() {
+        HomeBottons.style.display = 'none';
+    }
+
+    function showHomeBottons() {
+        HomeBottons.style.display = 'block';
+    }
+
+    
+
+    
+    
+
 
     // Event listeners for links
     coursesLink.addEventListener('click', function (event) {
@@ -49,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         enrolledStudents.style.display = 'none';
         hideLoginContainer();
         hideHomeBottons();
-        hideuserDetailsContainer();
+        
     });
 
     studentsLink.addEventListener('click', function (event) {
@@ -60,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         addCourseBtn.style.display = 'none';
         hideLoginContainer();
         hideHomeBottons();
-        hideuserDetailsContainer();
+        
     });
 
     homeLink.addEventListener('click', function (event) {
@@ -68,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideContainers();
         showLoginContainer();
         showHomeBottons();
-        showuserDetailsContainer();
+        
     });
 
     queryLink.addEventListener('click', function (event) {
@@ -76,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showQueryContainer();
         hideLoginContainer();
         hideHomeBottons();
-        hideuserDetailsContainer();
+       
     });
 
     // Function to show search container
@@ -110,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
         filterForm.style.display = 'none';
 
     }
+    
 });
 
 function toggleAcademicDropdown() {
@@ -125,6 +131,7 @@ function toggleAcademicDropdown() {
 document.getElementById("homeLink").addEventListener("click", function () {
     // Show the academic details dropdown
     document.getElementById("academicDetailsDropdown").style.display = "block";
+    document.getElementById("courseList").style.display = "none";
 });
 
 function toggleDropdown() {
@@ -140,4 +147,8 @@ function toggleDropdown() {
 document.getElementById("homeLink").addEventListener("click", function () {
     // Show the personal details dropdown
     document.getElementById("personalDetailsDropdown").style.display = "block";
+    document.getElementById('enrolledStudents').style.display = "none";
 });
+
+
+

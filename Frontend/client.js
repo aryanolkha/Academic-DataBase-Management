@@ -578,11 +578,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById("showcoursesBtn").addEventListener("click", function () {
-        document.getElementById("courseList").style.display = "block";
-        console.log("Button clicked");
-        const studentId = sessionStorage.getItem('username');
-        console.log(studentId);
-        fetchCoursesList(studentId);
+        // document.getElementById("courseList").style.display = "block";
+        // console.log("Button clicked");
+        // const studentId = sessionStorage.getItem('username');
+        // console.log(studentId);
+        // fetchCoursesList(studentId);
+        // dfsdfdsfd
+        var courseDiv = document.getElementById("courseList");
+        if (courseDiv.style.display === "none") {
+            courseDiv.style.display = "block";
+            const studentId = sessionStorage.getItem('username'); // Get the username from sessionStorage
+            console.log(studentId);
+            fetchCoursesList(studentId); // Pass the username to the fetchProfileData function
+        } else {
+            courseDiv.style.display = "none";
+        }
+
+
+
     });
 
     //**courses registration */
@@ -591,9 +604,9 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = 'http://localhost:5000/course_reg';
     });
 
-    
 
-             
+
+
 });
 
 
@@ -666,17 +679,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     loginForm.addEventListener('submit', function (event) {
         event.preventDefault();
-    
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const userType = document.getElementById('userType').value;
-    
+
         const credentials = {
             username: username,
             password: password,
-            userType:userType
+            userType: userType
         };
-    
+
         fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: {
@@ -684,87 +697,127 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify(credentials)
         })
-        .then(response => {
-            if (response.ok) {
-                console.log('Login successful');
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('username', username);
-    
-                // Only store the user type if the login is successful
-                sessionStorage.setItem('userType', userType); // Store user type in session
-    
-                loginContainer.style.display = 'none'; // Move this line here for all user types
-    
-                showProtectedContent();
-                
-                // Additional logic specific to student login
-                if (userType === 'student') {
-                    console.log("Loged in as student");
-                    // Fetch student details and update UI
-                    fetch(`http://localhost:5000/student/${username}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const studentName = data.Student_Name;
-                                
-                        // Remove existing user information
-                        while (loggedInUser.firstChild) {
-                            loggedInUser.removeChild(loggedInUser.firstChild);
-                        }
-                                
-                        // Display the username in the navbar
+            .then(response => {
+                if (response.ok) {
+                    console.log('Login successful');
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+
+                    // Only store the user type if the login is successful
+                    sessionStorage.setItem('userType', userType); // Store user type in session
+
+                    loginContainer.style.display = 'none'; // Move this line here for all user types
+
+                    showProtectedContent();
+
+                    // Additional logic specific to student login
+                    if (userType === 'student') {
+                        console.log("Loged in as student");
+                        // Fetch student details and update UI
+                        fetch(`http://localhost:5000/student/${username}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                const studentName = data.Student_Name;
+
+                                // Remove existing user information
+                                while (loggedInUser.firstChild) {
+                                    loggedInUser.removeChild(loggedInUser.firstChild);
+                                }
+
+                                // Display the username in the navbar
+                                const userAvatar = document.createElement('i');
+                                userAvatar.classList.add('fa-regular', 'fa-user');
+                                loggedInUser.appendChild(userAvatar);
+                                loggedInUser.appendChild(document.createTextNode('  ' + studentName));
+                                navbar.insertBefore(loggedInUser, navbar.childNodes[0]); // Insert the "Logged in as" element at the beginning of the navbar
+
+                                // Hide the login button after successful login
+                                loginButton.style.display = 'none';
+                            })
+                            .catch(error => {
+                                console.error('Error fetching student data:', error);
+                            });
+                    }
+                    if (userType === "admin" || userType === "instructor") {
+                        console.log(`Logged in as ${userType}`);
+                        loggedInUser.innerHTML = '';
+                        // Update UI to display username in the navbar
                         const userAvatar = document.createElement('i');
                         userAvatar.classList.add('fa-regular', 'fa-user');
                         loggedInUser.appendChild(userAvatar);
-                        loggedInUser.appendChild(document.createTextNode('  ' + studentName));
-                        navbar.insertBefore(loggedInUser, navbar.childNodes[0]); // Insert the "Logged in as" element at the beginning of the navbar
-                                
-                        // Hide the login button after successful login
-                        loginButton.style.display = 'none';
-                    })
-                    .catch(error => {
-                        console.error('Error fetching student data:', error);
-                    });
-                }
-                if (userType === "admin" || userType === "instructor") {
-                    console.log(`Logged in as ${userType}`);
-                    loggedInUser.innerHTML = '';
-                    // Update UI to display username in the navbar
-                    const userAvatar = document.createElement('i');
-                    userAvatar.classList.add('fa-regular', 'fa-user');
-                    loggedInUser.appendChild(userAvatar);
-                    loggedInUser.appendChild(document.createTextNode(' '));
-                    loggedInUser.appendChild(document.createTextNode(username));
-                    navbar.insertBefore(loggedInUser, navbar.childNodes[0]);
-                    
-                }
+                        loggedInUser.appendChild(document.createTextNode(' '));
+                        loggedInUser.appendChild(document.createTextNode(username));
+                        navbar.insertBefore(loggedInUser, navbar.childNodes[0]);
 
-            } else if (response.status === 401) {
-                // Unauthorized - handle different error scenarios
-                return response.json(); // Return the error response as JSON
-            }
-        })
-        .then(data => {
-            // Handle different error scenarios based on the response
-            if (data && data.error) {
-                // Display error message to the user
-                console.error('Authentication error:', data.error);
-                // You can display the error message to the user in your UI
-                alert(data.error); // Display the error message in an alert
-                loggedInUser.innerHTML = ''; // Clear the previous username from the navbar
-                loginButton.style.display = 'block'; // Show the login button again
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+                    }
+
+                } else if (response.status === 401) {
+                    // Unauthorized - handle different error scenarios
+                    return response.json(); // Return the error response as JSON
+                }
+            })
+            .then(data => {
+                // Handle different error scenarios based on the response
+                if (data && data.error) {
+                    // Display error message to the user
+                    console.error('Authentication error:', data.error);
+                    // You can display the error message to the user in your UI
+                    alert(data.error); // Display the error message in an alert
+                    loggedInUser.innerHTML = ''; // Clear the previous username from the navbar
+                    loginButton.style.display = 'block'; // Show the login button again
+                }
+                handleUserRole(userType);
+            })
+            
+            .catch(error => {
+                console.error('Error:', error);
+            });
     });
+
+    function handleUserRole(userType) {
+        const userProfile = document.getElementById("userProfile");
+        const logoutButton = document.getElementById("logoutButton");
+        const loginButton = document.getElementById("loginButton");
+
+        
+
+        // Display user profile based on role
+        switch (userType) {
+            case 'student':
+                console.log("Logged in as student");
+                // Show student-related UI elements
+                document.querySelector('#std').style.display = "none";
+                document.querySelector('#courses').style.display = "none";
+                document.querySelector('#queryLink').style.display = "none";
+
+                break;
+            case 'instructor':
+                console.log("Logged in as instructor");
+                // Show faculty-related UI elements
+                document.querySelector('#homeLink').style.display = "none";
+                document.getElementById('addStudeBtn').style.display = "none";
+                document.getElementById('addCourseBtn').style.display = "none";
+
+                break;
+            case 'admin':
+                console.log("Logged in as admin");
+                // Show admin-related UI elements
+                document.querySelector('#homeLink').style.display = "none";
+                document.getElementById('addStudeBtn').style.display = "block";
+                document.getElementById('addCourseBtn').style.display = "block";
+
+                break;
+            default:
+                console.error("Unknown user type");
+        }
+    }
 });
-    
+
 
 
 
@@ -852,147 +905,152 @@ function logout() {
 
 
 document.getElementById("Profile").addEventListener("click", function () {
-    var profileDiv = document.getElementById("ProfileCont");
-    if (profileDiv.style.display === "none") {
-        profileDiv.style.display = "block";
-        const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
-        console.log(username);
-        fetchProfileData(username); // Pass the username to the fetchProfileData function
-    } else {
-        profileDiv.style.display = "none";
-    }
+    // var profileDiv = document.getElementById("ProfileCont");
+    // if (profileDiv.style.display === "none") {
+    //     profileDiv.style.display = "block";
+    //     const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
+    //     console.log(username);
+    //     fetchProfileData(username); // Pass the username to the fetchProfileData function
+    // } else {
+    //     profileDiv.style.display = "none";
+    // }
+    const username = sessionStorage.getItem('username');
+
+            // Navigate to profile.html and pass the username as a query parameter
+            window.location.href = `profile.html?username=${username}`;
+    // window.location.href = 'profile.html';
 });
 
-document.getElementById("fetchProfileBtn").addEventListener("click", function () {
-    const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
-    fetchProfileData(username); // Call the function to fetch profile data with the username
-});
+// document.getElementById("fetchProfileBtn").addEventListener("click", function () {
+//     const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
+//     fetchProfileData(username); // Call the function to fetch profile data with the username
+// });
 
 
 
-function fetchProfileData(username) {
-    // Construct the URL with the username as a query parameter
-    const url = `http://localhost:5000/profile?username=${username}`;
+// function fetchProfileData(username) {
+//     // Construct the URL with the username as a query parameter
+//     const url = `http://localhost:5000/profile?username=${username}`;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (!data || Object.keys(data).length === 0) {
-                throw new Error('Empty or malformed response');
-            }
-            populateProfileForm(data);
-        })
-        .catch(error => {
-            console.error('Error fetching profile data:', error);
-            alert('Error fetching profile data');
-        });
-}
+//     fetch(url)
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             if (!data || Object.keys(data).length === 0) {
+//                 throw new Error('Empty or malformed response');
+//             }
+//             populateProfileForm(data);
+//         })
+//         .catch(error => {
+//             console.error('Error fetching profile data:', error);
+//             alert('Error fetching profile data');
+//         });
+// }
 
 
-function populateProfileForm(data) {
-    // Populate the frontend form with data received from the backend
-    document.getElementById("profileIDInput").value = data.Student_ID || '';
-    document.getElementById("profileNameInput").value = data.Student_Name || '';
-    document.getElementById("profileBranchInput").value = data.Branch || '';
-    document.getElementById("profileBatchInput").value = data.Batch || '';
-    document.getElementById("profileGenderInput").value = data.Gender || '';
-    document.getElementById("profileEmailInput").value = data.Email || '';
-    document.getElementById("profileCGPAInput").value = data.CGPA || '';
-    document.getElementById("profileAddressInput").value = data.Address || '';
-    document.getElementById("profileMotherNameInput").value = data.Mother_Name || '';
-    document.getElementById("profileFatherNameInput").value = data.Father_Name || '';
-    document.getElementById("profileFatherMobileInput").value = data.Father_Mobile || '';
-    document.getElementById("profileBloodGroupInput").value = data.Blood_Group || '';
+// function populateProfileForm(data) {
+//     // Populate the frontend form with data received from the backend
+//     document.getElementById("profileIDInput").value = data.Student_ID || '';
+//     document.getElementById("profileNameInput").value = data.Student_Name || '';
+//     document.getElementById("profileBranchInput").value = data.Branch || '';
+//     document.getElementById("profileBatchInput").value = data.Batch || '';
+//     document.getElementById("profileGenderInput").value = data.Gender || '';
+//     document.getElementById("profileEmailInput").value = data.Email || '';
+//     document.getElementById("profileCGPAInput").value = data.CGPA || '';
+//     document.getElementById("profileAddressInput").value = data.Address || '';
+//     document.getElementById("profileMotherNameInput").value = data.Mother_Name || '';
+//     document.getElementById("profileFatherNameInput").value = data.Father_Name || '';
+//     document.getElementById("profileFatherMobileInput").value = data.Father_Mobile || '';
+//     document.getElementById("profileBloodGroupInput").value = data.Blood_Group || '';
 
-    const profilePhotoImg = document.querySelector("#profilePhotoContainer img");
-    if (data.Photo) {
-        profilePhotoImg.src = data.Photo; // Set the source to the photo URL from data
-        console.log(data.Photo);
-    } else {
-        // If no photo available, display the FontAwesome user icon
-        profilePhotoImg.src = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/regular/user.svg";
-    }
+//     const profilePhotoImg = document.querySelector("#profilePhotoContainer img");
+//     if (data.Photo) {
+//         profilePhotoImg.src = data.Photo; // Set the source to the photo URL from data
+//         console.log(data.Photo);
+//     } else {
+//         // If no photo available, display the FontAwesome user icon
+//         profilePhotoImg.src = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/svgs/regular/user.svg";
+//     }
 
-    // Show the update button
-    document.getElementById("updateProfileBtn").style.display = "inline-block";
-}
+//     // Show the update button
+//     document.getElementById("updateProfileBtn").style.display = "inline-block";
+// }
 
-// code for update button
-document.getElementById("updateProfileBtn").addEventListener("click", function () {
-    // Make the form fields editable
-    toggleFormEditable(true);
-    // Show the submit button
-    document.getElementById("submitProfileBtn").style.display = "inline-block";
-    // Hide the update button
-    document.getElementById("updateProfileBtn").style.display = "none";
-});
+// // code for update button
+// document.getElementById("updateProfileBtn").addEventListener("click", function () {
+//     // Make the form fields editable
+//     toggleFormEditable(true);
+//     // Show the submit button
+//     document.getElementById("submitProfileBtn").style.display = "inline-block";
+//     // Hide the update button
+//     document.getElementById("updateProfileBtn").style.display = "none";
+// });
 
-document.getElementById("submitProfileBtn").addEventListener("click", function () {
-    const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
-    updateProfile(username); // Pass the username to the updateProfile function
-});
+// document.getElementById("submitProfileBtn").addEventListener("click", function () {
+//     const username = sessionStorage.getItem('username'); // Get the username from sessionStorage
+//     updateProfile(username); // Pass the username to the updateProfile function
+// });
 
-// Call toggleFormEditable initially to set the form fields as read-only
-toggleFormEditable(false);
+// // Call toggleFormEditable initially to set the form fields as read-only
+// toggleFormEditable(false);
 
-function toggleFormEditable(editable) {
-    // Get all input fields in the form
-    const inputs = document.querySelectorAll("#profileForm input");
-    // Loop through each input field and toggle the readOnly attribute
-    inputs.forEach(input => {
-        input.readOnly = !editable;
-    });
-}
+// function toggleFormEditable(editable) {
+//     // Get all input fields in the form
+//     const inputs = document.querySelectorAll("#profileForm input");
+//     // Loop through each input field and toggle the readOnly attribute
+//     inputs.forEach(input => {
+//         input.readOnly = !editable;
+//     });
+// }
 
-function updateProfile(username) {
-    // Retrieve the updated profile details
-    const updatedName = document.getElementById("profileNameInput").value;
-    const updatedEmail = document.getElementById("profileEmailInput").value;
-    const updatedAddress = document.getElementById("profileAddressInput").value;
+// function updateProfile(username) {
+//     // Retrieve the updated profile details
+//     const updatedName = document.getElementById("profileNameInput").value;
+//     const updatedEmail = document.getElementById("profileEmailInput").value;
+//     const updatedAddress = document.getElementById("profileAddressInput").value;
 
-    // Prepare the updated data object
-    const updatedData = {
-        Student_ID: username, // Include the username in the updated data
-        Student_Name: updatedName,
-        Email: updatedEmail,
-        Address: updatedAddress
-        // Add other fields as needed
-    };
+//     // Prepare the updated data object
+//     const updatedData = {
+//         Student_ID: username, // Include the username in the updated data
+//         Student_Name: updatedName,
+//         Email: updatedEmail,
+//         Address: updatedAddress
+//         // Add other fields as needed
+//     };
 
-    // Use fetch or an AJAX request to send the updated data to the server
-    fetch('http://localhost:5000/updateProfile', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedData)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Handle the response from the server, e.g., display a success message
-            console.log('Profile updated successfully');
-            // Reset the form fields to read-only state
-            toggleFormEditable(false);
-            // Hide the submit button
-            document.getElementById("submitProfileBtn").style.display = "none";
-            // Show the update button again
-            document.getElementById("updateProfileBtn").style.display = "inline-block";
-        })
-        .catch(error => {
-            console.error('Error updating profile:', error);
-            // Handle errors, e.g., display an error message to the user
-        });
-}
+//     // Use fetch or an AJAX request to send the updated data to the server
+//     fetch('http://localhost:5000/updateProfile', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(updatedData)
+//     })
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             // Handle the response from the server, e.g., display a success message
+//             console.log('Profile updated successfully');
+//             // Reset the form fields to read-only state
+//             toggleFormEditable(false);
+//             // Hide the submit button
+//             document.getElementById("submitProfileBtn").style.display = "none";
+//             // Show the update button again
+//             document.getElementById("updateProfileBtn").style.display = "inline-block";
+//         })
+//         .catch(error => {
+//             console.error('Error updating profile:', error);
+//             // Handle errors, e.g., display an error message to the user
+//         });
+// }
 
 
 
@@ -1004,24 +1062,24 @@ function fetchCoursesList(studentId) {
         },
         body: JSON.stringify({ studentId: studentId })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        displayCourses(data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayCourses(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 function displayCourses(courses) {
     const courseListDiv = document.getElementById("courseList");
     courseListDiv.innerHTML = ""; // Clear previous content
-    
+
     // Organize courses by semester and remove duplicates
     const coursesBySemester = {};
     courses.forEach(course => {
@@ -1036,16 +1094,16 @@ function displayCourses(courses) {
             }
         });
     });
-    
+
     // Iterate over semesters and display courses under each semester heading
     for (const semester in coursesBySemester) {
         const semesterCourses = Object.values(coursesBySemester[semester]);
-        
+
         // Create semester heading
         const semesterHeading = document.createElement('h2');
         semesterHeading.textContent = `Semester ${semester} Courses`;
         courseListDiv.appendChild(semesterHeading);
-        
+
         // Create table for courses
         const table = document.createElement('table');
         table.innerHTML = `
@@ -1059,7 +1117,7 @@ function displayCourses(courses) {
             <tbody></tbody>
         `;
         const tbody = table.querySelector('tbody');
-        
+
         // Populate table with courses
         semesterCourses.forEach(course => {
             const row = document.createElement('tr');
@@ -1070,7 +1128,7 @@ function displayCourses(courses) {
             `;
             tbody.appendChild(row);
         });
-        
+
         courseListDiv.appendChild(table);
     }
 }

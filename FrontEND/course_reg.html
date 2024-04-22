@@ -198,7 +198,7 @@
         const selectedSemester = Semester.value;
 
         if (selectedDepartment && selectedSemester) {
-          fetch(`http://localhost:3000/courses?Department=${selectedDepartment}&Semester=${selectedSemester}`)
+          fetch(`http://localhost:5000/get-reg-courses?Department=${selectedDepartment}&Semester=${selectedSemester}`)
             .then(response => response.json())
             .then(data => {
               console.log("Fetched courses:", data.courses);
@@ -245,7 +245,7 @@
           Course_Codes: selectedCourses
         };
 
-        fetch('http://localhost:3000/submit', {
+        fetch('http://localhost:5000/submit-course-reg', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

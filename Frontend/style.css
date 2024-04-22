@@ -437,7 +437,7 @@ button:hover {
 /* CSS for profile */
 #ProfileCont {
     width: 90%;
-    display: none;
+    /* display: none; */
     position: relative;
     top: 100%;
     left: 50%; /* Center horizontally */

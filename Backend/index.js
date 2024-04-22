@@ -1,10 +1,22 @@
 var express = require("express");
 var app = express();
 var cors= require("cors");
+const path = require("path"); // Import path module
 const bodyParser = require("body-parser");
 app.use(cors());
+const router = express.Router();
 
-app.set('view engine', 'ejs');
+// Define your routes here
+router.get('/', (req, res) => {
+  res.send('Hello from index.js');
+});
+
+app.use(express.static(path.join(__dirname, 'FrontEND')));
+
+ 
+
+// Export the router
+module.exports = router;
 
 const pool = require('./db'); // Import the pool variable
 
@@ -154,6 +166,7 @@ app.get('/filter', (req, res) => {
 app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+    const userType = req.body.userType;
 
     const sql = 'SELECT * FROM users WHERE username = ? AND password_hash = ?';
     pool.query(sql, [username, password], (err, results) => {
@@ -163,13 +176,22 @@ app.post('/login', (req, res) => {
         }
 
         if (results.length === 0) {
-            return res.status(401).json({ error: 'Authentication Failed' });
+            // No user found with the provided credentials
+            return res.status(401).json({ error: 'Unknown Username' });
         }
 
         const user = results[0];
+        // Check if the user's role matches the provided userType
+        if (user.role !== userType) {
+            return res.status(401).json({ error: 'Incorrect User Type' });
+        }
+
+        // If everything is correct, return success
         res.json({ success: true, user: user });
     });
-});    
+});
+
+    
 
 app.get('/student/:username', (req, res) => {
     const username = req.params.username;
@@ -209,25 +231,11 @@ app.get('/profile', (req, res) => {
     });
 });
 
-// Endpoint to handle profile update
+
 app.post('/updateProfile', (req, res) => {
-    const updatedData = req.body; // Assuming the updated data is sent in the request body
-
-    // Update the profile in the database
-    const sql = `UPDATE student SET 
-                    Student_Name = ?,
-                    Email = ?,
-                    Address = ?,
-                    Mother_Name = ?,
-                    Father_Name = ?,
-                    Father_Mobile = ?,
-                    Photo = ?,
-                    Blood_Group = ?
-                 WHERE Student_ID = ?`;
-
-    const { Student_Name, Email, Address, Mother_Name, Father_Name, Father_Mobile, Photo, Blood_Group, Student_ID } = updatedData;
-
-    pool.query(sql, [Student_Name, Email, Address, Mother_Name, Father_Name, Father_Mobile, Photo, Blood_Group, Student_ID], (err, result) => {
+    const {   Student_ID ,Address,  Father_Mobile} = req.body;
+    const sql = "UPDATE student SET Address = ?,Father_Mobile=? WHERE Student_ID = ?";
+    pool.query(sql, [Address,  Father_Mobile,Student_ID], (err, result) => {
         if (err) {
             console.error('Error updating profile:', err);
             return res.status(500).json({ error: 'Internal server error' });
@@ -236,19 +244,64 @@ app.post('/updateProfile', (req, res) => {
     });
 });
 
-app.post('/updateProfile', (req, res) => {
-    const { Student_ID, Student_Name, Email, Address } = req.body;
-    const sql = "UPDATE student SET Student_Name = ?, Email = ?, Address = ? WHERE Student_ID = ?";
-    pool.query(sql, [Student_Name, Email, Address, Student_ID], (err, result) => {
+app.post('/get_courses', (req, res) => {
+    const studentId = req.body.studentId;
+    const sql = `SELECT courses.Course_Code, courses.Instructor_Name, courses.Course_Type, courses.Semester
+                 FROM courses 
+                 INNER JOIN course_enrollment ON courses.Course_Code = course_enrollment.Course_Code 
+                 WHERE course_enrollment.Student_ID = ?`;
+    // Use pool.query to execute SQL queries
+    pool.query(sql, [studentId], (err, results) => {
         if (err) {
-            console.error('Error updating profile:', err);
-            return res.status(500).json({ error: 'Internal server error' });
+            console.error('Error fetching courses:', err);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
         }
-        res.json({ message: 'Profile updated successfully' });
+        res.json(results);
     });
 });
 
-  
+
+app.get("/get-reg-courses", (req, res) => {
+    const { Department, Semester } = req.query;
+    const query = `SELECT Course_Code, Instructor_Name, Email, Course_Type FROM courses WHERE Department LIKE '%${Department}%' AND Semester LIKE '%${Semester}%'`;
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching courses:", err);
+            res.status(500).json({ error: "Internal server error" });
+            return;
+        }
+        res.json({ courses: results });
+    });
+});
+
+
+app.post('/submit-course-reg', (req, res) => {
+    const { Student_ID, Course_Codes } = req.body;
+
+    const courseData = Course_Codes.map(courseCode => ([Student_ID, courseCode]));
+
+    pool.query('INSERT INTO course_enrollment (Student_ID, Course_Code) VALUES?', [courseData], (err, result) => {
+        if (err) {
+            console.error('Error inserting course data:', err);
+            res.status(500).send('Error inserting course data');
+            return;
+        }
+        console.log('Data inserted into MySQL table');
+        res.send('Data inserted into MySQL table');
+    });
+});
+
+
+
+
+app.get('/course_reg', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'FrontEND', 'course_reg.html'));
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'FrontEND', 'profile.html'));
+  });
 
 
 var port = process.env.PORT || 5000
