@@ -106,6 +106,14 @@ th {
     /* Add margin bottom to separate tables */
 }
 
+
+/* Additional styling for instructor table */
+.instructor-table {
+    margin-bottom: 20px;
+    /* Add margin bottom to separate tables */
+}
+
+
 /* Hide search bar and button by default */
 #searchContainer {
     display: none;
@@ -437,7 +445,7 @@ button:hover {
 /* CSS for profile */
 #ProfileCont {
     width: 90%;
-    display: none;
+    /* display: none; */
     position: relative;
     top: 100%;
     left: 50%; /* Center horizontally */
@@ -632,7 +640,7 @@ button:hover {
   
   /* Style for the table */
   table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
     margin-top: 10px;
     border: 1px solid #818284;
@@ -660,4 +668,24 @@ button:hover {
   tr:hover {
     background-color: #f2f2f2;
   }
+
+/* CSS */
+.instructor-table table {
+    margin: 0 auto; 
+}
+
+/* CSS */
+#enrolledStudents {
+    display: flex;
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
+    /* Optionally, you can add additional styling */
+}
+
+#enrolledStudents table{
+    margin: 0 auto;
+}
+
+
+
   

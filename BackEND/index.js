@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-var cors= require("cors");
+var cors = require("cors");
 const path = require("path"); // Import path module
 const bodyParser = require("body-parser");
 app.use(cors());
@@ -8,12 +8,12 @@ const router = express.Router();
 
 // Define your routes here
 router.get('/', (req, res) => {
-  res.send('Hello from index.js');
+    res.send('Hello from index.js');
 });
 
 app.use(express.static(path.join(__dirname, 'FrontEND')));
 
- 
+
 
 // Export the router
 module.exports = router;
@@ -29,11 +29,11 @@ app.get('/contact', function (req, res) {
     res.render('contact', { qs: req.query });
 });
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
     res.send("working");
 });
 
-app.get("/student", (req,res)=>{
+app.get("/student", (req, res) => {
     pool.query('SELECT * FROM student', (err, results, fields) => {
         if (err) {
             console.error('Error fetching student data:', err);
@@ -44,7 +44,7 @@ app.get("/student", (req,res)=>{
     });
 });
 
-app.get("/courses", (req,res)=>{
+app.get("/courses", (req, res) => {
     pool.query('SELECT * FROM courses', (err, results, fields) => {
         if (err) {
             console.error('Error fetching course data:', err);
@@ -55,12 +55,30 @@ app.get("/courses", (req,res)=>{
     });
 });
 
+app.get("/view-courses", (req, res) => {
+    const userEmail = req.query.username; // Assuming email is passed as a query parameter
+
+    console.log(`Fetching courses for user ${userEmail}`);
+
+    // Execute MySQL query to select courses associated with the provided email
+    pool.query('SELECT * FROM courses WHERE Email = ?', [userEmail], (err, results, fields) => {
+        if (err) {
+            console.error('Error fetching course data:', err);
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.json(results);
+            console.log(results);
+        }
+    });
+});
+
+
 app.get("/search", (req, res) => {
     const query = req.query.query;
     const searchQuery = '%' + query + '%';
     const sql = `SELECT * FROM student WHERE Student_Name LIKE ? OR Student_ID LIKE ? OR Branch LIKE ? OR Batch LIKE ? OR Gender LIKE ? OR Email LIKE ?`;
     const values = [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery, searchQuery];
-    
+
     pool.query(sql, values, (err, studentResults) => {
         if (err) {
             console.error("Error fetching student data:", err);
@@ -83,10 +101,10 @@ app.get("/search", (req, res) => {
 });
 
 app.post("/submit-form", (req, res) => {
-    const { studentID, studentName, branch, batch, gender, email ,cgpa} = req.body;
+    const { studentID, studentName, branch, batch, gender, email, cgpa } = req.body;
 
-    pool.query('INSERT INTO student (Student_ID, Student_Name, Branch, Batch, Gender, Email, CGPA) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-        [studentID, studentName, branch, batch, gender, email,cgpa], 
+    pool.query('INSERT INTO student (Student_ID, Student_Name, Branch, Batch, Gender, Email, CGPA) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [studentID, studentName, branch, batch, gender, email, cgpa],
         (err, results) => {
             if (err) {
                 console.error('Error adding student:', err);
@@ -94,14 +112,14 @@ app.post("/submit-form", (req, res) => {
             }
             console.log('Student added successfully');
             res.json({ message: 'Student added successfully' });
-    });
-}); 
+        });
+});
 
 app.post("/submit-course", (req, res) => {
     const { courseCode, school, instructorName, email } = req.body;
 
-    pool.query('INSERT INTO courses (Course_Code, School, Instructor_Name, Email) VALUES (?, ?, ?, ?)', 
-        [courseCode, school, instructorName, email], 
+    pool.query('INSERT INTO courses (Course_Code, School, Instructor_Name, Email) VALUES (?, ?, ?, ?)',
+        [courseCode, school, instructorName, email],
         (err, results) => {
             if (err) {
                 console.error('Error adding course:', err);
@@ -109,7 +127,7 @@ app.post("/submit-course", (req, res) => {
             }
             console.log('Course added successfully');
             res.json({ message: 'Course added successfully' });
-    });
+        });
 });
 
 app.get('/enrolled-students', (req, res) => {
@@ -119,7 +137,7 @@ app.get('/enrolled-students', (req, res) => {
         FROM student
         INNER JOIN course_enrollment ON student.Student_ID = course_enrollment.Student_ID
         WHERE course_enrollment.Course_code = ?`;
-    
+
     pool.query(query, [courseCode], (err, results) => {
         if (err) {
             console.error('Error fetching enrolled students:', err);
@@ -152,14 +170,14 @@ app.get('/filter', (req, res) => {
         sql += ' AND CGPA BETWEEN ? AND ?';
         values.push(parseFloat(cgpaMin), parseFloat(cgpaMax));
     }
-    
+
     pool.query(sql, values, (err, results) => {
         if (err) {
             console.error('Error executing query:', err);
             res.status(500).json({ error: 'Internal server error' });
             return;
         }
-        res.json(results);      
+        res.json(results);
     });
 });
 
@@ -191,7 +209,7 @@ app.post('/login', (req, res) => {
     });
 });
 
-    
+
 
 app.get('/student/:username', (req, res) => {
     const username = req.params.username;
@@ -216,7 +234,7 @@ app.get('/student/:username', (req, res) => {
 
 
 app.get('/profile', (req, res) => {
-    const sql ="SELECT * FROM student WHERE Student_ID = ?";
+    const sql = "SELECT * FROM student WHERE Student_ID = ?";
     const username = req.query.username; // Change parameter name to 'username'
 
     pool.query(sql, [username], (err, result) => {
@@ -231,37 +249,11 @@ app.get('/profile', (req, res) => {
     });
 });
 
-// Endpoint to handle profile update
-app.post('/updateProfile', (req, res) => {
-    const updatedData = req.body; // Assuming the updated data is sent in the request body
-
-    // Update the profile in the database
-    const sql = `UPDATE student SET 
-                    Student_Name = ?,
-                    Email = ?,
-                    Address = ?,
-                    Mother_Name = ?,
-                    Father_Name = ?,
-                    Father_Mobile = ?,
-                    Photo = ?,
-                    Blood_Group = ?
-                 WHERE Student_ID = ?`;
-
-    const { Student_Name, Email, Address, Mother_Name, Father_Name, Father_Mobile, Photo, Blood_Group, Student_ID } = updatedData;
-
-    pool.query(sql, [Student_Name, Email, Address, Mother_Name, Father_Name, Father_Mobile, Photo, Blood_Group, Student_ID], (err, result) => {
-        if (err) {
-            console.error('Error updating profile:', err);
-            return res.status(500).json({ error: 'Internal server error' });
-        }
-        res.json({ message: 'Profile updated successfully' });
-    });
-});
 
 app.post('/updateProfile', (req, res) => {
-    const { Student_ID, Student_Name, Email, Address } = req.body;
-    const sql = "UPDATE student SET Student_Name = ?, Email = ?, Address = ? WHERE Student_ID = ?";
-    pool.query(sql, [Student_Name, Email, Address, Student_ID], (err, result) => {
+    const { Student_ID, Address, Father_Mobile } = req.body;
+    const sql = "UPDATE student SET Address = ?,Father_Mobile=? WHERE Student_ID = ?";
+    pool.query(sql, [Address, Father_Mobile, Student_ID], (err, result) => {
         if (err) {
             console.error('Error updating profile:', err);
             return res.status(500).json({ error: 'Internal server error' });
@@ -287,10 +279,79 @@ app.post('/get_courses', (req, res) => {
     });
 });
 
+
+app.get("/get-reg-courses", (req, res) => {
+    const { Department, Semester } = req.query;
+    const query = `SELECT Course_Code, Instructor_Name, Email, Course_Type FROM courses WHERE Department LIKE '%${Department}%' AND Semester LIKE '%${Semester}%'`;
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching courses:", err);
+            res.status(500).json({ error: "Internal server error" });
+            return;
+        }
+        res.json({ courses: results });
+    });
+});
+
+
+app.post('/submit-course-reg', (req, res) => {
+    const { Student_ID, Course_Codes } = req.body;
+
+    const courseData = Course_Codes.map(courseCode => ([Student_ID, courseCode]));
+
+    pool.query('INSERT INTO course_enrollment (Student_ID, Course_Code) VALUES?', [courseData], (err, result) => {
+        if (err) {
+            console.error('Error inserting course data:', err);
+            res.status(500).send('Error inserting course data');
+            return;
+        }
+        console.log('Data inserted into MySQL table');
+        res.send('Data inserted into MySQL table');
+    });
+});
+
+// Endpoint to fetch the list of instructors
+app.get("/instructors", (req, res) => {
+    // Execute MySQL query to select all instructors from the database
+    pool.query('SELECT * FROM instructor', (err, results) => {
+        if (err) {
+            console.error('Error fetching instructors:', err);
+            return res.status(500).send("Internal Server Error");
+        }
+        res.json(results); // Send the list of instructors as JSON response
+    });
+});
+
+app.post("/submit-instructor", (req, res) => {
+    const { instructorName, instructorEmail, school } = req.body;
+
+    // Execute MySQL query to insert instructor data into the database
+    pool.query('INSERT INTO instructor (Instructor_Name, Instructor_Email, School) VALUES (?, ?, ?)',
+        [instructorName, instructorEmail, school],
+        (err, results) => {
+            if (err) {
+                console.error('Error adding instructor:', err);
+                return res.status(500).send("Internal Server Error");
+            }
+            console.log('Instructor added successfully');
+            res.json({ message: 'Instructor added successfully' });
+        });
+});
+
+
+
+
 app.get('/course_reg', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'FrontEND', 'course_reg.html'));
 });
 
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'FrontEND', 'profile.html'));
+});
+
+app.get('/add-Instructor', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'FrontEND', 'add-Instructor.html'));
+});
 
 var port = process.env.PORT || 5000
 app.listen(port, function (req, res) {
