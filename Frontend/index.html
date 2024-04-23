@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
         <nav class="top-navbar">
@@ -31,24 +32,30 @@
 
     <nav class="bottom-navbar">
         <a href="#" id="homeLink">Home</a>
-        <a href="#" id="courses" class="protected-content">Courses</a>
         <a href="#" id="std" class="protected-content">Students</a>
+        <a href="#" id="InstList" class="protected-content" >Instructors</a>
+        <a href="#" id="courses" class="protected-content">Courses</a>
         <a href="#" id="queryLink" class="protected-content">Query</a>
+        <a href="#" id="instructor-Courses" class="protected-content">View Courses</a>
+        <a href="#" id="aboutUs" >About Us</a>
+
     </nav>
-    <div class="HomeBottons" >
+    <div class="HomeBottons">
         <div id="personalDetailsDropdown" style="display: none;">
-            <button id="personalDetailsBtn"  onclick="toggleDropdown()" class="protected-content">Personal Details <i class="fa-solid fa-caret-down"></i></button>
+            <button id="personalDetailsBtn" onclick="toggleDropdown()" class="protected-content">Personal Details <i
+                    class="fa-solid fa-caret-down"></i></button>
             <div id="dropdownContent" style="display: none;">
                 <button id="Profile" class="protected-content">Profile</button>
-            
-                
+
+
                 <button id="IDCardBtn" class="protected-content">ID Card</button>
                 <button id="ScholarshipBtn" class="protected-content">Scholarship</button>
             </div>
         </div>
-    
+
         <div id="academicDetailsDropdown" style="display: none;">
-            <button id="academicDetailsBtn" onclick="toggleAcademicDropdown()" class="protected-content">Academic Details <i class="fa-solid fa-caret-down"></i></button>
+            <button id="academicDetailsBtn" onclick="toggleAcademicDropdown()" class="protected-content">Academic
+                Details <i class="fa-solid fa-caret-down"></i></button>
             <div id="academicDropdownContent" style="display: none;">
                 <button id="courseRegistrationBtn">Course Registration</button>
                 <button id="showcoursesBtn">Courses</button>
@@ -56,7 +63,7 @@
             </div>
         </div>
     </div>
-    
+
 
     <div class="loginContainer">
         <form id="loginForm" class="login-form">
@@ -80,7 +87,7 @@
             <button type="submit">Login</button>
         </form>
     </div>
-    
+
 
     <div class="container" id="searchContainer">
         <input type="text" id="searchbar" placeholder="Search.." name="search">
@@ -90,6 +97,7 @@
             <button type="button" id="filterBtn">Filter</button>
             <button class="addstudent" id="addStudeBtn">Add Student</button>
             <button class="addcourse" id="addCourseBtn">Add Course</button>
+            <button class="addInstructor" id="addInstructorBtn" style="display: none; ">Add Instructor</button>
         </div>
 
 
@@ -229,11 +237,23 @@
     <div class="container" id="studentData">
         <!-- Student data will be displayed here -->
     </div>
+    
+    <div id="instructorList" class="instructor-table">
+        <!-- Enrolled students will be displayed here -->
+    </div>
+    <div id="instructorCourseList" class="instructor-table">
+        <!-- Enrolled students will be displayed here -->
+    </div>
     <div id="enrolledStudents">
         <!-- Enrolled students will be displayed here -->
     </div>
     <script src="client.js"></script>
     <script src="Genral.js"></script>
+    <!-- <script> urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('refresh')) {
+            fetchInstructors(); // Refresh instructor table
+        } -->
+    </script>
 </body>
 
 </html>

@@ -106,6 +106,14 @@ th {
     /* Add margin bottom to separate tables */
 }
 
+
+/* Additional styling for instructor table */
+.instructor-table {
+    margin-bottom: 20px;
+    /* Add margin bottom to separate tables */
+}
+
+
 /* Hide search bar and button by default */
 #searchContainer {
     display: none;
@@ -632,32 +640,35 @@ button:hover {
   
   /* Style for the table */
   table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin: 10px auto; /* Centering the table horizontally */
     border: 1px solid #818284;
-  }
-  
-  /* Style for table header */
-  th {
+}
+
+/* Style for table header */
+th {
     background-color: #50688a;
     padding: 10px;
     border: 1px solid #818284;
-  }
-  
-  /* Style for table cells */
-  td {
+}
+
+/* Style for table cells */
+td {
     padding: 10px;
     border: 1px solid #818284;
-  }
-  
-  /* Style for table rows */
-  tr:nth-child(even) {
+}
+
+/* Style for table rows */
+tr:nth-child(even) {
     background-color: #f9f9f9;
-  }
-  
-  /* Hover effect for table rows */
-  tr:hover {
+}
+
+/* Hover effect for table rows */
+tr:hover {
     background-color: #f2f2f2;
-  }
-  
+}
+
+#studentDataContainer{
+    width: 100%;
+}
